@@ -5,7 +5,7 @@ using namespace std;
 //Constructor
 Binary_tree::Binary_tree() {
   root = empty;
- empty = new node();
+ node* empty = new node();
  empty->color = BLACK;
 }
 
@@ -16,11 +16,11 @@ Binary_tree::~Binary_tree() {
 
 //Deletes every node in the tree
 void Binary_tree::destroy(node* & root) {
-  if(root) {
+  if(root != empty) {
     destroy(root->lchild);
     destroy(root->rchild);
     delete root;
-    root = nullptr;
+    root = empty;
   }
 }
 
@@ -197,7 +197,6 @@ void Binary_tree::rotateTree(node* target) {
 
 //Recursively swaps nodes
 void Binary_tree::recursiveInsert(node* newNode) {
-  cout << "Top of recursiveInsert." << endl;
   if(newNode == empty || newNode->parent == empty) {
     return;
   }
@@ -247,14 +246,12 @@ void Binary_tree::insertCheck(node* newNode) {
     newNode->parent = empty;
   }
   else if(newNode->parent->color == RED) {
-    cout << "Parent is red, starting recurse." << endl;
     recursiveInsert(newNode);
   }
 }
 
 //Puts a new node into the tree at the right place
 void Binary_tree::insertNode(node* & root, node* & rootParent, node* & newNode) {
-  cout << "Top of insertNode" << endl;
   if(root == empty) {
     root = newNode;
     newNode->parent = rootParent;
