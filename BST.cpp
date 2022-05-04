@@ -156,18 +156,21 @@ void Binary_tree::remove(int deleteValue) {
 
 //Rotates the tree around a given grandparent
 void Binary_tree::rotateGrandparent(node* target) {
+  cout << "Rotating about grandparent" << endl;
   node* grandparent = target->parent->parent;
   node* parent = target->parent;
   node* uncle = findUncle(target);
   grandparent->color = RED;
   parent->color = BLACK;
-  root = parent;
+  if(root == grandparent) {
+    root = parent;
+  }
   if(islchild(parent, grandparent) && islchild(target, parent)) {
-    grandparent->lchild = parent->rchild;
+    grandparent->rchild = parent->lchild;
     parent->rchild = grandparent;
   }
-  else {
-    grandparent->rchild = parent->lchild;
+  else if(!islchild(parent, grandparent) && !islchild(target, parent)){
+    grandparent->lchild = parent->rchild;
     parent->lchild = grandparent;
   }
 }
@@ -209,11 +212,12 @@ void Binary_tree::recursiveInsert(node* newNode) {
 	     !islchild(newNode, newNode->parent) && !islchild(newNode->parent, newNode->parent->parent)) { //Case 5
 	    rotateGrandparent(newNode);
 	  }
-	  else { //Case 4
+	  else if(!islchild(newNode, newNode->parent) && islchild(newNode->parent, newNode->parent->parent) ||
+		  islchild(newNode, newNode->parent) && !islchild(newNode->parent, newNode->parent->parent)){ //Case 4
 	    rotateTree(newNode);
 	  }
 	}
-	else {
+	else { //Case 3
 	  newNode->parent->color = BLACK;
 	  uncle->color = BLACK;
 	  newNode->parent->parent->color = RED;
@@ -228,13 +232,11 @@ void Binary_tree::recursiveInsert(node* newNode) {
 node* Binary_tree::findUncle(node* target) {
   node* uncle = nullptr;
   node* grandparent = target->parent->parent;
-  if(grandparent->lchild != empty && grandparent->rchild != empty) {
-    if(grandparent->lchild->value == target->parent->value) {
-      uncle = grandparent->rchild;
-    }
-    else {
-      uncle = grandparent->lchild;
-    }
+  if(grandparent->lchild->value == target->parent->value) {
+    uncle = grandparent->rchild;
+  }
+  else {
+    uncle = grandparent->lchild;
   }
   return uncle;
 }
