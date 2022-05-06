@@ -156,7 +156,7 @@ void Binary_tree::remove(int deleteValue) {
 
 //Rotates the tree around a given grandparent
 void Binary_tree::rotateGrandparent(node* target) {
-  cout << "Rotating about grandparent" << endl;
+  cout << "Rotating about grandparent: " << target->value << endl;
   node* grandparent = target->parent->parent;
   node* parent = target->parent;
   node* uncle = findUncle(target);
@@ -165,19 +165,23 @@ void Binary_tree::rotateGrandparent(node* target) {
   if(root == grandparent) {
     root = parent;
   }
+  node* kidTrade;
   if(islchild(parent, grandparent) && islchild(target, parent)) {
-    grandparent->rchild = parent->lchild;
+    kidTrade = parent->rchild;
     parent->rchild = grandparent;
+    grandparent->lchild = kidTrade;
   }
-  else if(!islchild(parent, grandparent) && !islchild(target, parent)){
-    grandparent->lchild = parent->rchild;
-    parent->lchild = grandparent;
+  else {
+    kidTrade = parent->lchild;
+    parent->rchild = grandparent;
+    grandparent->rchild = kidTrade;
   }
+  cout << "Finished grandparent rotate." << endl;
 }
 
 //Rotates the tree around a given node
 void Binary_tree::rotateTree(node* target) {
-  cout << "Inside rotateTree" << endl;
+  cout << "Rotating around: " << target->value << endl;
   node* parent = target->parent;
   node* grandparent = parent->parent;
   if(islchild(parent, grandparent) && !islchild(target, parent)) { //if Parent is left and node is right
@@ -186,7 +190,7 @@ void Binary_tree::rotateTree(node* target) {
     parent->rchild = target->lchild;
     parent->parent = target;
     target->parent = grandparent;
-    rotateGrandparent(parent);
+    rotateGrandparent(target);
   }
   else if(!islchild(parent, grandparent) && islchild(target, parent)) { //if Parent is right and node is left
     cout << "Rotating..." << endl;
@@ -194,37 +198,33 @@ void Binary_tree::rotateTree(node* target) {
     parent->lchild = target->rchild;
     parent->parent = target;
     target->parent = grandparent;
-    rotateGrandparent(parent);
+    rotateGrandparent(target);
   }
+  cout << "Finished rotate." << endl;
 }
 
 //Recursively swaps nodes
 void Binary_tree::recursiveInsert(node* newNode) {
+  display();
   if(newNode == empty || newNode->parent == empty) {
     return;
   }
-  if(newNode->parent->color == RED) {
-    if(newNode->parent->parent != empty) {
-      node* uncle = findUncle(newNode);
-      if(uncle) {
-	if(uncle->color == BLACK) {
-	  if(islchild(newNode, newNode->parent) && islchild(newNode->parent, newNode->parent->parent) ||
-	     !islchild(newNode, newNode->parent) && !islchild(newNode->parent, newNode->parent->parent)) { //Case 5
-	    rotateGrandparent(newNode);
-	  }
-	  else if(!islchild(newNode, newNode->parent) && islchild(newNode->parent, newNode->parent->parent) ||
-		  islchild(newNode, newNode->parent) && !islchild(newNode->parent, newNode->parent->parent)){ //Case 4
-	    rotateTree(newNode);
-	  }
-	}
-	else { //Case 3
-	  newNode->parent->color = BLACK;
-	  uncle->color = BLACK;
-	  newNode->parent->parent->color = RED;
-	  recursiveInsert(newNode->parent->parent);
-	}
-      }
+  node* uncle = findUncle(newNode);
+  if(uncle->color == BLACK) {
+    if(islchild(newNode, newNode->parent) && islchild(newNode->parent, newNode->parent->parent) ||
+       !islchild(newNode, newNode->parent) && !islchild(newNode->parent, newNode->parent->parent)) { //Case 5
+      rotateGrandparent(newNode);
     }
+    else { //Case 4
+      rotateTree(newNode);
+    }
+  }
+  else { //Case 3
+    newNode->parent->color = BLACK;
+    uncle->color = BLACK;
+    newNode->parent->parent->color = RED;
+    cout << "Calling another insert..." << endl;
+    recursiveInsert(newNode->parent->parent);
   }
 }
 
@@ -271,9 +271,6 @@ void Binary_tree::insertNode(node* & root, node* & rootParent, node* & newNode) 
 void Binary_tree::display() {
   string prefix = "";
   displayTree(false, root, prefix);
-  cout << endl;
-  cout << "Inorder: ";
-  inorder(root);
   cout << endl;
 }
 
