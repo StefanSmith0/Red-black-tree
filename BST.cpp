@@ -156,7 +156,7 @@ void Binary_tree::remove(int deleteValue) {
 
 //Rotates the tree around a given grandparent
 void Binary_tree::rotateGrandparent(node* target) {
-  cout << "Rotating about grandparent: " << target->value << endl;
+  cout << "Rotating about grandparent: " << target->parent->parent->value << " of: " << target->value << endl;
   node* grandparent = target->parent->parent;
   node* parent = target->parent;
   node* uncle = findUncle(target);
@@ -165,18 +165,26 @@ void Binary_tree::rotateGrandparent(node* target) {
   if(root == grandparent) {
     root = parent;
   }
-  node* kidTrade;
+  else {
+    if(islchild(grandparent, grandparent->parent)) {
+      grandparent->parent->lchild = parent;
+    }
+    else {
+      grandparent->parent->rchild = parent;
+    }
+  }
   if(islchild(parent, grandparent) && islchild(target, parent)) {
-    kidTrade = parent->rchild;
+    grandparent->lchild = parent->rchild;
     parent->rchild = grandparent;
-    grandparent->lchild = kidTrade;
+    grandparent->parent = parent;
   }
   else {
-    kidTrade = parent->lchild;
-    parent->rchild = grandparent;
-    grandparent->rchild = kidTrade;
-  }
-  cout << "Finished grandparent rotate." << endl;
+    grandparent->rchild = parent->lchild;
+    parent->lchild = grandparent;
+    grandparent->parent = parent;
+  }  
+  cout << "Finished grandparent rotate:" << endl;
+  display();
 }
 
 //Rotates the tree around a given node
@@ -185,20 +193,24 @@ void Binary_tree::rotateTree(node* target) {
   node* parent = target->parent;
   node* grandparent = parent->parent;
   if(islchild(parent, grandparent) && !islchild(target, parent)) { //if Parent is left and node is right
-    cout << "Rotating..." << endl;
-    grandparent->lchild = target;
     parent->rchild = target->lchild;
+    target->lchild = parent;
     parent->parent = target;
     target->parent = grandparent;
-    rotateGrandparent(target);
+    grandparent->lchild = target;
+    cout << "Finished rotate: " << endl;
+    display();
+    rotateGrandparent(parent);
   }
   else if(!islchild(parent, grandparent) && islchild(target, parent)) { //if Parent is right and node is left
-    cout << "Rotating..." << endl;
-    grandparent->rchild = target;
     parent->lchild = target->rchild;
+    target->rchild = parent;
     parent->parent = target;
     target->parent = grandparent;
-    rotateGrandparent(target);
+    grandparent->rchild = target;
+    cout << "Finished rotate: " << endl;
+    display();
+    rotateGrandparent(parent);
   }
   cout << "Finished rotate." << endl;
 }
@@ -206,25 +218,26 @@ void Binary_tree::rotateTree(node* target) {
 //Recursively swaps nodes
 void Binary_tree::recursiveInsert(node* newNode) {
   display();
-  if(newNode == empty || newNode->parent == empty) {
-    return;
-  }
-  node* uncle = findUncle(newNode);
-  if(uncle->color == BLACK) {
-    if(islchild(newNode, newNode->parent) && islchild(newNode->parent, newNode->parent->parent) ||
-       !islchild(newNode, newNode->parent) && !islchild(newNode->parent, newNode->parent->parent)) { //Case 5
-      rotateGrandparent(newNode);
+  if(newNode->parent != empty && newNode->parent->parent != empty) {
+    if(newNode->parent->color == RED) {
+      node* uncle = findUncle(newNode);
+      if(uncle->color == BLACK) {
+	if(islchild(newNode, newNode->parent) && islchild(newNode->parent, newNode->parent->parent) ||
+	   !islchild(newNode, newNode->parent) && !islchild(newNode->parent, newNode->parent->parent)) { //Case 5
+	  rotateGrandparent(newNode);
+	}
+	else { //Case 4
+	  rotateTree(newNode);
+	}
+      }
+      else { //Case 3
+	newNode->parent->color = BLACK;
+	uncle->color = BLACK;
+	newNode->parent->parent->color = RED;
+	cout << "Calling another insert on " << newNode->parent->parent->value << endl;
+	recursiveInsert(newNode->parent->parent);
+      }
     }
-    else { //Case 4
-      rotateTree(newNode);
-    }
-  }
-  else { //Case 3
-    newNode->parent->color = BLACK;
-    uncle->color = BLACK;
-    newNode->parent->parent->color = RED;
-    cout << "Calling another insert..." << endl;
-    recursiveInsert(newNode->parent->parent);
   }
 }
 
