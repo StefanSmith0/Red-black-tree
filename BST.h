@@ -26,6 +26,7 @@ class Binary_tree {
   const int RED = 1;
   node* root;
   node* empty;
+  void case3(node*, node*);
   void rotateGrandparent(node*);
   void rotateTree(node*);
   void recursiveInsert(node*);

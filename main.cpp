@@ -32,11 +32,11 @@ int main() {
   bool validCmd = false;
   char input[10];
   while(!validCmd) {
-    cout << "Fill tree manually, randomly, or by file? (m/r/f): ";
+    cout << "Fill tree manually, randomly, or by file? (m/r/f/q): ";
     cin >> input;
     cin.clear();
     cin.ignore();
-    if(!strcmp(input, "quit")) {
+    if(!strcmp(input, "q")) {
       return 0;
     }
     if(!strcmp(input, "m")) {
@@ -87,6 +87,7 @@ int main() {
       bst->insert(intInput);
       cin.ignore();
       cin.clear();
+      bst->display();
     }
     else if(!strcmp(input, "search")) {
       cout << "Search for: ";
@@ -100,7 +101,7 @@ int main() {
       cin.ignore();
       cin.clear();
     }
-    else if(!strcmp(input, "display")) {
+    else if(!strcmp(input, "print")) {
       bst->display();
     }
     else if(!strcmp(input, "quit")) {
