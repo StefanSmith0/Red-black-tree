@@ -93,6 +93,22 @@ bool Binary_tree::islchild(node* child, node* parent) {
   return false;
 }
 
+node* Binary_tree::findSucc(node* target) {
+  if(target->lchild == empty) {
+    node* parent = target->parent;
+    while(parent != empty && !islchild(parent, parent->parent)) { //loop to find closest lchild ancestor
+      parent = parent->parent;
+    }
+    return parent;
+  }
+  else {
+    while(target->lchild != empty) { //loop to find leftmost of right subtree
+      target = target->lchild;
+    }
+    return target;
+  }
+}
+
 //Deletes a node from the tree with a given value
 void Binary_tree::remove(int deleteValue) {
   node* result = root;
@@ -102,6 +118,10 @@ void Binary_tree::remove(int deleteValue) {
     cout << "Couldn't find " << deleteValue << " in tree." << endl;
     return;
   }
+  node* succ = findSucc(result);
+  cout << "Successor of: " << result->value << " is: " << succ->value << endl;
+  inorder(root);
+  cout << endl;
   bool lchild = islchild(result, prevResult);
   if(result->lchild == empty && result->rchild == empty) { //leaf
     if(lchild) {
