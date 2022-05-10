@@ -40,7 +40,7 @@ bool Binary_tree::search(int searchValue) {
   node* result = root;
   node* prevResult = root;
   findNode(searchValue, result, prevResult);
-  if(result) {
+  if(result != empty) {
     return true;
   }
   else {
@@ -50,7 +50,7 @@ bool Binary_tree::search(int searchValue) {
 
 //Finds the parent of a node with a given value
 node* Binary_tree::findPreviousNode(int searchValue, node* result, node* prevResult) {
-  if(result) {
+  if(result != empty) {
     if(result->value == searchValue) {
       return prevResult;
     }
@@ -62,7 +62,7 @@ node* Binary_tree::findPreviousNode(int searchValue, node* result, node* prevRes
     }
   }
   else {
-    return nullptr;
+    return empty;
   }
 }
 
@@ -81,7 +81,7 @@ void Binary_tree::findNode(int & searchValue, node* & result, node* & prevResult
     }
   }
   else {
-    result = nullptr;
+    result = empty;
   }
 }
 
