@@ -26,7 +26,7 @@ class Binary_tree {
   const int RED = 1;
   node* root;
   node* empty;
-  void findSibling(node*);
+  node* findSibling(node*);
   void moveChildUp(node*, node*);
   void removeNode(node*);
   node* findSucc(node*);

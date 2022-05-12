@@ -57,6 +57,7 @@ void Binary_tree::remove(int removeValue) {
     cout << "Couldn't find " << removeValue << " in tree." << endl;
     return;
   }
+  cout << "Found value: " << result->value << " in tree." << endl;
   removeNode(result);
 }
 
@@ -107,7 +108,7 @@ bool Binary_tree::islchild(node* child, node* parent) {
 
 node* Binary_tree::findSucc(node* target) {
   node* succ;
-  if(target->lchild == empty) {
+  if(target->rchild != empty) {
     succ = target->rchild;
     while(succ->lchild != empty) { //loop to find leftmost of right subtree (next largest)
       succ = succ->lchild;
@@ -138,16 +139,6 @@ node* Binary_tree::findSibling(node* target) {
 //Deletes a node from the tree with a given value
 void Binary_tree::removeNode(node* result) {
   cout << "removeNode - Target is now: " << result->value << endl;
-  /*  if(result->lchild == empty && result->rchild == empty) { //leaf
-    cout << "Target node has no children - easy delete!" << endl;
-    if(islchild(result, result->parent)) {
-      result->parent->lchild = empty;
-    }
-    else {
-      result->parent->rchild = empty;
-    }
-    delete result;
-    } */
   if(result->lchild != empty && result->rchild != empty) { //two children
     node* succ = findSucc(result);
     inorder(root);
@@ -165,9 +156,7 @@ void Binary_tree::removeNode(node* result) {
     else {
       replace = result->rchild;
     }
-    if(replace->color == RED) {
-      replace->color = BLACK;
-    }
+    replace->color = result->color;
     moveChildUp(result, replace);
     if(replace == root) { //case 1
       return;
@@ -181,14 +170,34 @@ void Binary_tree::removeNode(node* result) {
       sibling->color = RED;
       return;
     }
-    else if(sibling->color == BLACK && sibling->rchild->color == RED) { //case 6 (left) - terminating
-      parent->rchild = sibling->lchild;
-      parent->parent = sibling;
-      sibling->color = parent->color;
-      parent->color = BLACK;
-      sibling->rchild->color = BLACK;
+    else if(sibling->color == BLACK && sibling->rchild->color == RED) { //case 6 - terminating
+      cout << "Case 6" << endl;
       if(root == parent) {
 	root = sibling;
+      }
+      else if(islchild(parent, parent->parent)) {
+	parent->parent->lchild = sibling;
+      }
+      else {
+	parent->parent->rchild = sibling;
+      }
+      if(islchild(replace, replace->parent)) { //left rotation
+	sibling->parent = parent->parent;
+	parent->rchild = sibling->lchild;
+	sibling->lchild = parent;
+	parent->parent = sibling;
+	sibling->color = parent->color;
+	parent->color = BLACK;
+	sibling->rchild->color = BLACK;
+      }
+      else { //right rotation
+	sibling->parent = parent->parent;
+	parent->lchild = sibling->rchild;
+	sibling->rchild = parent;
+	parent->parent = sibling;
+	sibling->color = parent->color;
+	parent->color = BLACK;
+	sibling->rchild->color = BLACK;
       }
     }
   }
@@ -196,6 +205,8 @@ void Binary_tree::removeNode(node* result) {
 
 //Moves a target node's parent to it's position, only use if one child.
 void Binary_tree::moveChildUp(node* target, node* child) {
+  cout << target->parent->value << " -> " << target->value << " <- " << child->value << endl;
+  cout << target->parent->value << " ->  <- " << child->value << endl;
   if(target == root) {
     root = child;
     delete target;
@@ -365,7 +376,7 @@ void Binary_tree::display() {
 void Binary_tree::inorder(node* & root) {
   if(root != empty) {
     inorder(root->lchild);
-    cout << root->value << ", ";
+    cout << root->value << " " << "\033[1;34m" << root->parent->value << "\033[0m" << " , ";
     inorder(root->rchild);
   }
 }
