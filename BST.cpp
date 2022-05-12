@@ -48,6 +48,18 @@ bool Binary_tree::search(int searchValue) {
   }
 }
 
+//Removes a node from the tree
+void Binary_tree::remove(int removeValue) {
+  node* result = root;
+  node* prevResult = root;
+  findNode(removeValue, result, prevResult);
+  if(!result) {
+    cout << "Couldn't find " << removeValue << " in tree." << endl;
+    return;
+  }
+  removeNode(result);
+}
+
 //Finds the parent of a node with a given value
 node* Binary_tree::findPreviousNode(int searchValue, node* result, node* prevResult) {
   if(result != empty) {
@@ -94,84 +106,109 @@ bool Binary_tree::islchild(node* child, node* parent) {
 }
 
 node* Binary_tree::findSucc(node* target) {
+  node* succ;
   if(target->lchild == empty) {
-    node* parent = target->parent;
-    while(parent != empty && !islchild(parent, parent->parent)) { //loop to find closest lchild ancestor
-      parent = parent->parent;
+    succ = target->rchild;
+    while(succ->lchild != empty) { //loop to find leftmost of right subtree (next largest)
+      succ = succ->lchild;
     }
-    return parent;
+    return succ;
   }
   else {
-    while(target->lchild != empty) { //loop to find leftmost of right subtree
-      target = target->lchild;
+    succ = target->lchild;
+    while(succ->rchild != empty) { //loop to find leftmost of right subtree (next smallest)
+      succ = succ->rchild;
     }
-    return target;
+    return succ;
+  }
+}
+
+node* Binary_tree::findSibling(node* target) {
+  if(target == root) {
+    return root;
+  }
+  if(target->parent->lchild->value == target->value) {
+    return target->parent->rchild;
+  }
+  else {
+    return target->parent->lchild;
   }
 }
 
 //Deletes a node from the tree with a given value
-void Binary_tree::remove(int deleteValue) {
-  node* result = root;
-  node* prevResult = root;
-  findNode(deleteValue, result, prevResult);
-  if(!result) {
-    cout << "Couldn't find " << deleteValue << " in tree." << endl;
-    return;
-  }
-  node* succ = findSucc(result);
-  cout << "Successor of: " << result->value << " is: " << succ->value << endl;
-  inorder(root);
-  cout << endl;
-  bool lchild = islchild(result, prevResult);
-  if(result->lchild == empty && result->rchild == empty) { //leaf
-    if(lchild) {
-      prevResult->lchild = empty;
-      delete result;
-    }
-  }
-  else if(result->lchild != empty && result->rchild != empty) { //two children
-    node* replacementParent = result;
-    node* replacement = replacementParent->rchild;
-    while(replacement->lchild != empty) { //loop to find leftmost of right subtree
-      replacementParent = replacement;
-      replacement = replacementParent->lchild;
-    }
-    if(replacement->rchild) { //if replacement has rchild, adopt it
-      if(replacementParent == result) {
-	replacementParent->rchild = replacement->rchild;
-      }
-      else {
-	replacementParent->lchild = replacement->rchild;
-      }
+void Binary_tree::removeNode(node* result) {
+  cout << "removeNode - Target is now: " << result->value << endl;
+  /*  if(result->lchild == empty && result->rchild == empty) { //leaf
+    cout << "Target node has no children - easy delete!" << endl;
+    if(islchild(result, result->parent)) {
+      result->parent->lchild = empty;
     }
     else {
-      if(replacementParent == result) {
-	replacementParent->rchild = empty;
-      }
-      else {
-	replacementParent->lchild = empty;
-      }
-    }
-    int replacementValue = replacement->value;
-    delete replacement;
-    result->value = replacementValue;
-  }
-  else if(result->lchild != empty || result->rchild != empty) { //one child
-    node* child;
-    if(result->lchild != empty) {
-      child = result->lchild;
-    }
-    else {
-      child = result->rchild;
-    }
-    if(lchild) {
-      prevResult->lchild = child;
-    }
-    else {
-      prevResult->rchild = child;
+      result->parent->rchild = empty;
     }
     delete result;
+    } */
+  if(result->lchild != empty && result->rchild != empty) { //two children
+    node* succ = findSucc(result);
+    inorder(root);
+    cout << endl;
+    cout << "Successor of: " << result->value << " is: " << succ->value << endl;
+    result->value = succ->value;
+    removeNode(succ);
   }
+  else { //one child or no children
+    cout << "Target has one or no children" << endl;
+    node* replace;
+    if(result->lchild != empty) {
+      replace = result->lchild;
+    }
+    else {
+      replace = result->rchild;
+    }
+    if(replace->color == RED) {
+      replace->color = BLACK;
+    }
+    moveChildUp(result, replace);
+    if(replace == root) { //case 1
+      return;
+    }
+    node* parent = replace->parent;
+    node* sibling = findSibling(replace);
+    if(parent->color == RED && sibling->color == BLACK && sibling->lchild->color == BLACK
+       && sibling->rchild->color == BLACK) { //case 4 - terminating
+      cout << "Case 4" << endl;
+      parent->color = BLACK;
+      sibling->color = RED;
+      return;
+    }
+    else if(sibling->color == BLACK && sibling->rchild->color == RED) { //case 6 (left) - terminating
+      parent->rchild = sibling->lchild;
+      parent->parent = sibling;
+      sibling->color = parent->color;
+      parent->color = BLACK;
+      sibling->rchild->color = BLACK;
+      if(root == parent) {
+	root = sibling;
+      }
+    }
+  }
+}
+
+//Moves a target node's parent to it's position, only use if one child.
+void Binary_tree::moveChildUp(node* target, node* child) {
+  if(target == root) {
+    root = child;
+    delete target;
+    return;
+  }
+  child->parent = target->parent;
+  if(islchild(target, target->parent)) {
+    target->parent->lchild = child;
+  }
+  else {
+    target->parent->rchild = child;
+  }
+  delete target;
 }
 
 //Rotates the tree around a given grandparent
