@@ -49,7 +49,7 @@ int main() {
     }
     else if(!strcmp(input, "r")) {
       srand(time(NULL));
-      for(int i = 0; i < 10; i++) {
+      for(int i = 0; i < 20; i++) {
 	bst->insert((rand() % 999) + 1);
       }
       validCmd = true;

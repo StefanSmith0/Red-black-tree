@@ -58,7 +58,7 @@ void Binary_tree::remove(int removeValue) {
     return;
   }
   cout << "Found value: " << result->value << " in tree." << endl;
-  removeNode(result);
+  removeNode(result, true);
 }
 
 //Finds the parent of a node with a given value
@@ -137,68 +137,128 @@ node* Binary_tree::findSibling(node* target) {
 }
 
 //Deletes a node from the tree with a given value
-void Binary_tree::removeNode(node* result) {
-  cout << "removeNode - Target is now: " << result->value << endl;
-  if(result->lchild != empty && result->rchild != empty) { //two children
-    node* succ = findSucc(result);
-    inorder(root);
-    cout << endl;
-    cout << "Successor of: " << result->value << " is: " << succ->value << endl;
-    result->value = succ->value;
-    removeNode(succ);
-  }
-  else { //one child or no children
-    cout << "Target has one or no children" << endl;
-    node* replace;
-    if(result->lchild != empty) {
-      replace = result->lchild;
+void Binary_tree::removeNode(node* & result, bool deleteMode) {
+  node* replace = result;
+  if(deleteMode) { //When false, just check for cases.
+    cout << "removeNode - Target is now: " << result->value << endl;
+    if(result->lchild != empty && result->rchild != empty) { //two children
+      node* succ = findSucc(result);
+      inorder(root);
+      cout << endl;
+      cout << "Successor of: " << result->value << " is: " << succ->value << endl;
+      result->value = succ->value;
+      removeNode(succ, true);
     }
-    else {
-      replace = result->rchild;
-    }
-    replace->color = result->color;
-    moveChildUp(result, replace);
-    if(replace == root) { //case 1
-      return;
-    }
-    node* parent = replace->parent;
-    node* sibling = findSibling(replace);
-    if(parent->color == RED && sibling->color == BLACK && sibling->lchild->color == BLACK
-       && sibling->rchild->color == BLACK) { //case 4 - terminating
-      cout << "Case 4" << endl;
-      parent->color = BLACK;
-      sibling->color = RED;
-      return;
-    }
-    else if(sibling->color == BLACK && sibling->rchild->color == RED) { //case 6 - terminating
-      cout << "Case 6" << endl;
-      if(root == parent) {
-	root = sibling;
-      }
-      else if(islchild(parent, parent->parent)) {
-	parent->parent->lchild = sibling;
+    else { //one child or no children
+      cout << "Target has one or no children" << endl;
+      if(result->lchild != empty) {
+	replace = result->lchild;
       }
       else {
-	parent->parent->rchild = sibling;
+	replace = result->rchild;
       }
-      if(islchild(replace, replace->parent)) { //left rotation
-	sibling->parent = parent->parent;
-	parent->rchild = sibling->lchild;
-	sibling->lchild = parent;
-	parent->parent = sibling;
-	sibling->color = parent->color;
-	parent->color = BLACK;
-	sibling->rchild->color = BLACK;
-      }
-      else { //right rotation
-	sibling->parent = parent->parent;
-	parent->lchild = sibling->rchild;
-	sibling->rchild = parent;
-	parent->parent = sibling;
-	sibling->color = parent->color;
-	parent->color = BLACK;
-	sibling->rchild->color = BLACK;
-      }
+      replace->color = result->color;
+      moveChildUp(result, replace);
+    }
+  }
+  if(replace == root) { //case 1 - terminating
+    cout << "Case 1" << endl;
+    return;
+  }
+  node* parent = replace->parent;
+  node* sibling = findSibling(replace);
+  if(parent->color == BLACK && sibling->color == RED && sibling->lchild->color == BLACK
+     && sibling->rchild->color == BLACK) { //case 2
+    cout << "Case 2" << endl;
+    if(root == parent) {
+      root = sibling;
+    }
+    else if(islchild(parent, parent->parent)) {
+      parent->parent->lchild = sibling;
+    }
+    else {
+      parent->parent->rchild = sibling;
+    }
+    if(islchild(replace, parent)) { //right rotation
+      sibling->parent = parent->parent;
+      parent->rchild = sibling->lchild;
+      sibling->lchild = parent;
+      parent->parent = sibling;
+    }
+    else { //left rotation
+      sibling->parent = parent->parent;
+      parent->lchild = sibling->rchild;
+      sibling->rchild = parent;
+      parent->parent = sibling;
+    }
+    parent->color == RED;
+    sibling->color == BLACK;
+    removeNode(replace, false);
+  }
+  else if(parent->color == BLACK && sibling->color == BLACK && sibling->lchild->color == BLACK
+     && sibling->rchild->color == BLACK) { //case 3
+    cout << "Case 3" << endl;
+    sibling->color == RED;
+    removeNode(parent, false);
+  }
+  else if(parent->color == RED && sibling->color == BLACK && sibling->lchild->color == BLACK
+	  && sibling->rchild->color == BLACK) { //case 4 - terminating
+    cout << "Case 4" << endl;
+    parent->color = BLACK;
+    sibling->color = RED;
+    return;
+  }
+  else if(parent->color == BLACK && sibling->color == BLACK && sibling->lchild->color == RED) { //case 5
+    cout << "Case 5" << endl;
+    node* newSibling;
+    if(islchild(replace, parent)) { //right rotation
+      newSibling = sibling->lchild;
+      newSibling->parent = parent;
+      sibling->lchild = newSibling->rchild;
+      newSibling->rchild = sibling;
+      sibling->parent = newSibling;
+      parent->rchild = newSibling;
+    }
+    else { //left rotation
+      newSibling = sibling->rchild;
+      newSibling->parent = parent;
+      sibling->rchild = newSibling->lchild;
+      newSibling->lchild = sibling;
+      sibling->parent = newSibling;
+      parent->lchild = newSibling;
+    }
+    sibling->color == RED;
+    newSibling->color == BLACK;
+    removeNode(replace, false);
+  }
+  else if(sibling->color == BLACK && sibling->rchild->color == RED) { //case 6 - terminating
+    cout << "Case 6" << endl;
+    if(root == parent) {
+      root = sibling;
+    }
+    else if(islchild(parent, parent->parent)) {
+      parent->parent->lchild = sibling;
+    }
+    else {
+      parent->parent->rchild = sibling;
+    }
+    if(islchild(replace, replace->parent)) { //left rotation
+      sibling->parent = parent->parent;
+      parent->rchild = sibling->lchild;
+      sibling->lchild = parent;
+      parent->parent = sibling;
+      sibling->color = parent->color;
+      parent->color = BLACK;
+      sibling->rchild->color = BLACK;
+    }
+    else { //right rotation
+      sibling->parent = parent->parent;
+      parent->lchild = sibling->rchild;
+      sibling->rchild = parent;
+      parent->parent = sibling;
+      sibling->color = parent->color;
+      parent->color = BLACK;
+      sibling->lchild->color = BLACK;
     }
   }
 }
