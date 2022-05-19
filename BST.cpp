@@ -139,6 +139,7 @@ node* Binary_tree::findSibling(node* target) {
 //Deletes a node from the tree with a given value
 void Binary_tree::removeNode(node* & result, bool deleteMode) {
   node* replace = result;
+  empty->color = BLACK;
   if(deleteMode) { //When false, just check for cases.
     cout << "removeNode - Target is now: " << result->value << endl;
     if(result->lchild != empty && result->rchild != empty) { //two children
@@ -193,12 +194,14 @@ void Binary_tree::removeNode(node* & result, bool deleteMode) {
     }
     parent->color == RED;
     sibling->color == BLACK;
+    display();
     removeNode(replace, false);
   }
   else if(parent->color == BLACK && sibling->color == BLACK && sibling->lchild->color == BLACK
      && sibling->rchild->color == BLACK) { //case 3
     cout << "Case 3" << endl;
     sibling->color == RED;
+    display();
     removeNode(parent, false);
   }
   else if(parent->color == RED && sibling->color == BLACK && sibling->lchild->color == BLACK
@@ -229,6 +232,7 @@ void Binary_tree::removeNode(node* & result, bool deleteMode) {
     }
     sibling->color == RED;
     newSibling->color == BLACK;
+    display();
     removeNode(replace, false);
   }
   else if(sibling->color == BLACK && sibling->rchild->color == RED) { //case 6 - terminating
