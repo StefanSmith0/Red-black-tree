@@ -64,8 +64,17 @@ int main() {
 	stringToTree(bst, fileInput);
       }
     }
-    else {
-      cout << "Command not recognized." << endl;
+    else if(!strcmp(input, "t")) {
+      char fileInput[350];
+      char fileName[30];
+      strcpy(fileName, "sample.txt");
+      stringFromFile(fileInput, fileName, validCmd);
+      if(validCmd) {
+	stringToTree(bst, fileInput);
+      }
+      else {
+	cout << "Command not recognized." << endl;
+      }
     }
   }
   bool running = true;

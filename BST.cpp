@@ -53,7 +53,7 @@ void Binary_tree::remove(int removeValue) {
   node* result = root;
   node* prevResult = root;
   findNode(removeValue, result, prevResult);
-  if(!result) {
+  if(!result || result == empty) {
     cout << "Couldn't find " << removeValue << " in tree." << endl;
     return;
   }
@@ -138,8 +138,8 @@ node* Binary_tree::findSibling(node* target) {
 
 //Deletes a node from the tree with a given value
 void Binary_tree::removeNode(node* & result, bool deleteMode) {
-  node* replace = result;
   empty->color = BLACK;
+  node* replace = result;
   if(deleteMode) { //When false, just check for cases.
     cout << "removeNode - Target is now: " << result->value << endl;
     if(result->lchild != empty && result->rchild != empty) { //two children
@@ -149,6 +149,7 @@ void Binary_tree::removeNode(node* & result, bool deleteMode) {
       cout << "Successor of: " << result->value << " is: " << succ->value << endl;
       result->value = succ->value;
       removeNode(succ, true);
+      return;
     }
     else { //one child or no children
       cout << "Target has one or no children" << endl;
@@ -167,7 +168,9 @@ void Binary_tree::removeNode(node* & result, bool deleteMode) {
     return;
   }
   node* parent = replace->parent;
+  cout << "parent is: " << parent->value << endl;
   node* sibling = findSibling(replace);
+  cout << "sibling is: " << sibling->value << endl;
   if(parent->color == BLACK && sibling->color == RED && sibling->lchild->color == BLACK
      && sibling->rchild->color == BLACK) { //case 2
     cout << "Case 2" << endl;
