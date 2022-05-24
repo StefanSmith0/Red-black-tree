@@ -89,6 +89,7 @@ int main() {
       bst->remove(intInput);
       cin.ignore();
       cin.clear();
+      bst->display();
     }
     else if(!strcmp(input, "add")) {
       cout << "Add: ";

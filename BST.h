@@ -22,6 +22,7 @@ class Binary_tree {
   bool search(int);
   void display();
  private:
+  bool devMode = false;
   const int BLACK = 0;
   const int RED = 1;
   node* root;
