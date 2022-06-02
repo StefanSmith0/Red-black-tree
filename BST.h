@@ -15,6 +15,7 @@ struct node {
 
 class Binary_tree {
  public:
+  bool devMode = true;
   Binary_tree();
   ~Binary_tree();
   void insert(int);
@@ -22,7 +23,6 @@ class Binary_tree {
   bool search(int);
   void display();
  private:
-  bool devMode = false;
   const int BLACK = 0;
   const int RED = 1;
   node* root;

@@ -57,8 +57,13 @@ int main() {
     else if(!strcmp(input, "f")) {
       char fileInput[350];
       char fileName[30];
-      cout << "File name: ";
-      cin.getline(fileName, 30);
+      if(bst->devMode) {
+	strcpy(fileName, "test.txt");
+      }
+      else {
+	cout << "File name: ";
+	cin.getline(fileName, 30);
+      }
       stringFromFile(fileInput, fileName, validCmd);
       if(validCmd) {
 	stringToTree(bst, fileInput);
@@ -158,6 +163,7 @@ void stringToTree(Binary_tree* bst, char* input) {
   int intspaces = spaces(input);
   for(int i = 1; i < intspaces + 2; i++) {
     sscanf(input, "%d", &intFromInput);
+    cout << "Inserting: " << intFromInput << " into tree." << endl;
     bst->insert(intFromInput);
     if(intFromInput < 10) {
       input += 2;
