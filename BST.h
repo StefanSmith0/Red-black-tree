@@ -18,6 +18,7 @@ class Binary_tree {
   bool devMode = true;
   Binary_tree();
   ~Binary_tree();
+  void test();
   void insert(int);
   void remove(int);
   bool search(int);

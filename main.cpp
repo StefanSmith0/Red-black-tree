@@ -119,6 +119,9 @@ int main() {
     else if(!strcmp(input, "print")) {
       bst->display();
     }
+    else if(!strcmp(input, "test")) {
+      bst->test();
+    }
     else if(!strcmp(input, "quit")) {
       running = false;
     }
