@@ -15,7 +15,7 @@ struct node {
 
 class Binary_tree {
  public:
-  bool devMode = true;
+  bool devMode = false;
   Binary_tree();
   ~Binary_tree();
   void test();

@@ -166,7 +166,6 @@ void stringToTree(Binary_tree* bst, char* input) {
   int intspaces = spaces(input);
   for(int i = 1; i < intspaces + 2; i++) {
     sscanf(input, "%d", &intFromInput);
-    cout << "Inserting: " << intFromInput << " into tree." << endl;
     bst->insert(intFromInput);
     if(intFromInput < 10) {
       input += 2;

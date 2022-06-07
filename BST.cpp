@@ -27,7 +27,7 @@ void Binary_tree::destroy(node* & root) {
   }
 }
 
-//For general testing purposes
+//Dev function for general testing
 void Binary_tree::test() {
   cout << "Empty value: " << empty->value << endl;
   cout << "Empty color: ";
@@ -41,7 +41,6 @@ void Binary_tree::test() {
 
 //Adds a value to tree
 void Binary_tree::insert(int newInt) {
-  cout << "Empty: " << empty->value << endl;
   node* newNode = new node();
   newNode->value = newInt;
   newNode->lchild = empty;
@@ -154,7 +153,6 @@ node* Binary_tree::findSibling(node* target) {
 
 //Deletes a node from the tree with a given value
 void Binary_tree::removeNode(node* & result, bool deleteMode) {
-  cout << "Removing/checking cases on: " << result->value << endl;
   node* replace = result;
   if(deleteMode) { //When false, just check for cases.
     if(result->lchild != empty && result->rchild != empty) { //two children
@@ -212,11 +210,13 @@ void Binary_tree::removeNode(node* & result, bool deleteMode) {
     if(root == parent) {
       root = sibling;
     }
-    else if(islchild(parent, parent->parent)) {
-      parent->parent->lchild = sibling;
-    }
     else {
-      parent->parent->rchild = sibling;
+      if(islchild(parent, parent->parent)) {
+	parent->parent->lchild = sibling;
+      }
+      else {
+	parent->parent->rchild = sibling;
+      }
     }
     if(islchild(replace, parent)) { //right rotation
       sibling->parent = parent->parent;
@@ -230,8 +230,8 @@ void Binary_tree::removeNode(node* & result, bool deleteMode) {
       sibling->rchild = parent;
       parent->parent = sibling;
     }
-    parent->color == RED;
-    sibling->color == BLACK;
+    parent->color = RED;
+    sibling->color = BLACK;
     if(devMode) {
       cout << "VVVVVVVVVVVVVVVVVVVVV" << endl;
       display();
@@ -242,7 +242,8 @@ void Binary_tree::removeNode(node* & result, bool deleteMode) {
   else if(parent->color == BLACK && sibling->color == BLACK && sibling->lchild->color == BLACK
 	  && sibling->rchild->color == BLACK) { //case 3
     cout << "Case 3" << endl;
-    sibling->color == RED;
+    sibling->color = RED;
+    cout << "Setting sibling: " << sibling->value << " color to red." << endl;
     if(devMode) {
       display();
     }
@@ -254,38 +255,6 @@ void Binary_tree::removeNode(node* & result, bool deleteMode) {
     parent->color = BLACK;
     sibling->color = RED;
     return;
-  }
-  else if(parent->color == BLACK && sibling->color == BLACK && sibling->lchild->color == RED) { //case 5
-    if(devMode) {
-      cout << "╔══════════════════════════╗" << endl;
-      cout << "       --  Case 5 --      " << endl;
-      display();
-    }
-    node* newSibling;
-    if(islchild(replace, parent)) { //right rotation
-      newSibling = sibling->lchild;
-      newSibling->parent = parent;
-      sibling->lchild = newSibling->rchild;
-      newSibling->rchild = sibling;
-      sibling->parent = newSibling;
-      parent->rchild = newSibling;
-    }
-    else { //left rotation
-      newSibling = sibling->rchild;
-      newSibling->parent = parent;
-      sibling->rchild = newSibling->lchild;
-      newSibling->lchild = sibling;
-      sibling->parent = newSibling;
-      parent->lchild = newSibling;
-    }
-    sibling->color == RED;
-    newSibling->color == BLACK;
-    if(devMode) {
-      cout << "VVVVVVVVVVVVVVVVVVVVV" << endl;
-      display();
-      cout << "╚══════════════════════════╝" << endl;
-    }
-    removeNode(replace, false);
   }
   else if(sibling->color == BLACK && sibling->rchild->color == RED) { //case 6 - terminating
     if(devMode) {
@@ -325,6 +294,38 @@ void Binary_tree::removeNode(node* & result, bool deleteMode) {
       display();
       cout << "╚══════════════════════════╝" << endl;
     }
+  }
+  else if(parent->color == BLACK && sibling->color == BLACK && sibling->lchild->color == RED) { //case 5
+    if(devMode) {
+      cout << "╔══════════════════════════╗" << endl;
+      cout << "       --  Case 5 --      " << endl;
+      display();
+    }
+    node* newSibling;
+    if(islchild(replace, parent)) { //right rotation
+      newSibling = sibling->lchild;
+      newSibling->parent = parent;
+      sibling->lchild = newSibling->rchild;
+      newSibling->rchild = sibling;
+      sibling->parent = newSibling;
+      parent->rchild = newSibling;
+    }
+    else { //left rotation
+      newSibling = sibling->rchild;
+      newSibling->parent = parent;
+      sibling->rchild = newSibling->lchild;
+      newSibling->lchild = sibling;
+      sibling->parent = newSibling;
+      parent->lchild = newSibling;
+    }
+    sibling->color = RED;
+    newSibling->color = BLACK;
+    if(devMode) {
+      cout << "VVVVVVVVVVVVVVVVVVVVV" << endl;
+      display();
+      cout << "╚══════════════════════════╝" << endl;
+    }
+    removeNode(replace, false);
   }
 }
 
@@ -525,9 +526,7 @@ void Binary_tree::insertCheck(node* newNode) {
 
 //Puts a new node into the tree at the right place
 void Binary_tree::insertNode(node* & root, node* & rootParent, node* & newNode) {
-  cout << "Before check" << endl;
   if(root == empty) {
-    cout << "After check" << endl;
     root = newNode;
     newNode->parent = rootParent;
     insertCheck(root);
